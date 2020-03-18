@@ -4,11 +4,9 @@ import logging
 import platform
 from iec62056_21 import utils, constants
 
+import serial
 if platform.system() == 'Windows':
     from serial import serialwin32
-else:
-    import serial
-
 logger = logging.getLogger(__name__)
 
 
