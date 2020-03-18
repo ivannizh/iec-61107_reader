@@ -1,9 +1,13 @@
 import time
 import logging
 
-import serial
-import socket
-from iec62056_21 import utils, exceptions, constants
+import platform
+from iec62056_21 import utils, constants
+
+if platform.system() == 'Windows':
+    from serial import serialwin32
+else:
+    import serial
 
 logger = logging.getLogger(__name__)
 
@@ -227,7 +231,6 @@ class SerialTransport(BaseTransport):
     TRANSPORT_REQUIRES_ADDRESS = True
 
     def __init__(self, port, timeout=10):
-
         super().__init__(timeout=timeout)
         self.port_name = port
         self.port = None
@@ -236,18 +239,32 @@ class SerialTransport(BaseTransport):
         """
         Creates a serial port.
         """
-        self.port = serial.Serial(
-            self.port_name,
-            baudrate=9600,
-            parity=serial.PARITY_EVEN,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.SEVENBITS,
-            writeTimeout=0,
-            timeout=self.timeout / 2,
-            rtscts=False,
-            dsrdtr=False,
-            xonxoff=False,
-        )
+        if platform.system() == 'Windows':
+            self.port = serialwin32.Serial(
+                self.port_name,
+                baudrate=9600,
+                parity=serial.PARITY_EVEN,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.SEVENBITS,
+                writeTimeout=0,
+                timeout=self.timeout / 2,
+                rtscts=False,
+                dsrdtr=False,
+                xonxoff=False,
+            )
+        else:
+            self.port = serial.Serial(
+                self.port_name,
+                baudrate=9600,
+                parity=serial.PARITY_EVEN,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.SEVENBITS,
+                writeTimeout=0,
+                timeout=self.timeout / 2,
+                rtscts=False,
+                dsrdtr=False,
+                xonxoff=False,
+            )
 
     def disconnect(self):
         """
@@ -302,7 +319,6 @@ class SerialTransport(BaseTransport):
 
 
 class TcpTransport(BaseTransport):
-
     """
     Transport class for TCP/IP communication.
     """
